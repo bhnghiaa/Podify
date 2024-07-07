@@ -102,6 +102,7 @@ const handleSubmit = async (evt) => {
 
   displaySuccess("Your password is resets successfully!");
 
+  // resetting the form
   password.value = "";
   confirmPassword.value = "";
 };
