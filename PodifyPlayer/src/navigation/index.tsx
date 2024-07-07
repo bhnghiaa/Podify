@@ -14,6 +14,8 @@ import {
 } from 'src/store/auth';
 import AuthNavigator from './AuthNavigator';
 import TabNavigator from './TabNavigator';
+import {upldateNotification} from 'src/store/notification';
+import catchAsyncError from 'src/api/catchError';
 
 interface Props {}
 
@@ -48,7 +50,8 @@ const AppNavigator: FC<Props> = props => {
         dispatch(updateProfile(data.profile));
         dispatch(updateLoggedInState(true));
       } catch (error) {
-        console.log('Auth error: ', error);
+        const errorMessage = catchAsyncError(error);
+        dispatch(upldateNotification({message: errorMessage, type: 'error'}));
       }
 
       dispatch(updateBusyState(false));

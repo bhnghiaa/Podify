@@ -42,12 +42,9 @@ const LostPassword: FC<Props> = props => {
   ) => {
     actions.setSubmitting(true);
     try {
-      // we want to send these information to our api
       const {data} = await client.post('/auth/forget-password', {
         ...values,
       });
-
-      console.log(data);
     } catch (error) {
       const errorMessage = catchAsyncError(error);
       dispatch(upldateNotification({message: errorMessage, type: 'error'}));

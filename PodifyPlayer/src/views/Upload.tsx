@@ -19,7 +19,7 @@ import {DocumentPickerResponse, types} from 'react-native-document-picker';
 import MaterialComIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useDispatch} from 'react-redux';
 import catchAsyncError from 'src/api/catchError';
-import client from 'src/api/client';
+import {getClient} from 'src/api/client';
 import {upldateNotification} from 'src/store/notification';
 import * as yup from 'yup';
 
@@ -90,13 +90,8 @@ const Upload: FC<Props> = props => {
           uri: finalData.poster.uri,
         });
 
-      const token = await getFromAsyncStorage(Keys.AUTH_TOKEN);
-
+      const client = await getClient({'Content-Type': 'multipart/form-data;'});
       const {data} = await client.post('/audio/create', formData, {
-        headers: {
-          Authorization: 'Bearer ' + token,
-          'Content-Type': 'multipart/form-data;',
-        },
         onUploadProgress(progressEvent) {
           const uploaded = mapRange({
             inputMin: 0,
@@ -120,8 +115,6 @@ const Upload: FC<Props> = props => {
           setUploadProgress(Math.floor(uploaded));
         },
       });
-
-      console.log(data);
     } catch (error) {
       const errorMessage = catchAsyncError(error);
       dispatch(upldateNotification({message: errorMessage, type: 'error'}));

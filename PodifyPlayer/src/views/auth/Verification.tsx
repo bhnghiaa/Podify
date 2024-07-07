@@ -35,11 +35,9 @@ const Verification: FC<Props> = ({route}) => {
     const newOtp = [...otp];
 
     if (value === 'Backspace') {
-      // moves to the previous only if the field is empty
       if (!newOtp[index]) setActiveOtpIndex(index - 1);
       newOtp[index] = '';
     } else {
-      // update otp and move to the next
       setActiveOtpIndex(index + 1);
       newOtp[index] = value;
     }
@@ -72,7 +70,6 @@ const Verification: FC<Props> = ({route}) => {
       });
       dispatch(upldateNotification({message: data.message, type: 'success'}));
 
-      // navigate back to sign in
       navigation.navigate('SignIn');
     } catch (error) {
       const errorMessage = catchAsyncError(error);

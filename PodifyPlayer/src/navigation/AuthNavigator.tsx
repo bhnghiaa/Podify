@@ -10,9 +10,6 @@ import {getAuthState} from 'src/store/auth';
 const Stack = createNativeStackNavigator<AuthStackParamList>();
 
 const AuthNavigator = () => {
-  const authState = useSelector(getAuthState);
-  console.log(authState);
-
   return (
     <Stack.Navigator screenOptions={{headerShown: false}}>
       <Stack.Screen name="SignIn" component={SignIn} />

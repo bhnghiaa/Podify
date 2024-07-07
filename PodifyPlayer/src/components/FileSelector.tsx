@@ -7,6 +7,9 @@ import DocumentPicker, {
   DocumentPickerResponse,
 } from 'react-native-document-picker';
 import {SupportedPlatforms} from 'react-native-document-picker/lib/typescript/fileTypes';
+import {useDispatch} from 'react-redux';
+import catchAsyncError from 'src/api/catchError';
+import {upldateNotification} from 'src/store/notification';
 
 interface Props {
   icon?: ReactNode;
@@ -23,15 +26,16 @@ const FileSelector: FC<Props> = ({
   style,
   btnTitle,
 }) => {
+  const dispatch = useDispatch();
   const handleDocumentSelect = async () => {
     try {
       const document = await DocumentPicker.pick(options);
       const file = document[0];
       onSelect(file);
-      // [{"fileCopyUri": null, "name": "", "size": , "type": "", "uri": ""}]
     } catch (error) {
       if (!DocumentPicker.isCancel(error)) {
-        console.log(error);
+        const errorMessage = catchAsyncError(error);
+        dispatch(upldateNotification({message: errorMessage, type: 'error'}));
       }
     }
   };

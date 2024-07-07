@@ -57,7 +57,6 @@ const SignIn: FC<Props> = props => {
   ) => {
     actions.setSubmitting(true);
     try {
-      // we want to send these information to our api
       const {data} = await client.post('/auth/sign-in', {
         ...values,
       });
