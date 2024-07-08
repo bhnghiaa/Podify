@@ -39,16 +39,17 @@ const Home: FC<Props> = props => {
     try {
       const client = await getClient();
       const {data} = await client.post('/favorite?audioId=' + selectedAudio.id);
-      dispatch(
-        upldateNotification({
-          message: "Added to favorite's list",
-          type: 'success',
-        }),
-      );
     } catch (error) {
       const errorMessage = catchAsyncError(error);
       dispatch(upldateNotification({message: errorMessage, type: 'error'}));
     }
+    dispatch(
+      upldateNotification({
+        message: "Added to favorite's list",
+        type: 'success',
+      }),
+    );
+    console.log('Add to favorite', selectedAudio);
     setSelectedAudio(undefined);
     setShowOptionsModal(false);
   };
@@ -62,9 +63,11 @@ const Home: FC<Props> = props => {
         );
 
       const {data} = await client.post('/playlist/create', {
+        resId: selectedAudio?.id,
         title: playlistInfo.title,
         visibility: playlistInfo.private ? 'private' : 'public',
       });
+
       dispatch(
         upldateNotification({message: 'Playlist created', type: 'success'}),
       );
@@ -140,7 +143,10 @@ const Home: FC<Props> = props => {
       <PlaylistModal
         visible={showPlaylistModal}
         onRequestClose={() => setShowPlaylistModal(false)}
-        onCreateNewPress={() => setShowPlaylistForm(true)}
+        onCreateNewPress={() => {
+          setShowPlaylistForm(true);
+          setShowPlaylistModal(false);
+        }}
         onPlaylistPress={handleUpdatePlaylist}
         list={data || []}
       />

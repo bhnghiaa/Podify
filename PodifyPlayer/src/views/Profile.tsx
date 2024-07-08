@@ -38,6 +38,7 @@ const styles = StyleSheet.create({
     shadowColor: 'transparent',
     shadowOffset: {width: 0, height: 0},
     shadowOpacity: 0,
+    marginBottom: 15,
   },
   tabBarLabelStyle: {
     color: colors.CONTRAST,
