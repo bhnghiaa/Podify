@@ -1,24 +1,34 @@
+import AudioListItem from '@ui/AudioListItem';
+import AudioListLoadingUI from '@ui/AudioListLoadingUI';
 import {FC} from 'react';
-import {View, Text, StyleSheet} from 'react-native';
-import {usefetchUploadsByProfile} from 'src/hooks/query';
+import {
+  View,
+  StyleSheet,
+  Text,
+  Pressable,
+  Image,
+  ScrollView,
+} from 'react-native';
+import {useFetchUploadsByProfile} from 'src/hooks/query';
 
 interface Props {}
+
 const UploadsTab: FC<Props> = props => {
-  const {data, isLoading} = usefetchUploadsByProfile();
-  console.log(data);
+  const {data, isLoading} = useFetchUploadsByProfile();
+
+  if (isLoading) return <AudioListLoadingUI />;
+
   return (
-    <View style={styles.container}>
-      <Text>UploadsTab</Text>
-    </View>
+    <ScrollView style={styles.container}>
+      {data?.map(item => {
+        return <AudioListItem audio={item} />;
+      })}
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
+  container: {},
 });
 
 export default UploadsTab;

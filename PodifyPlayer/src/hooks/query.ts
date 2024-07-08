@@ -55,13 +55,13 @@ export const useFetchPlaylist = () => {
   });
 };
 
-const fetchUploadsByProfile = async (): Promise<Playlist[]> => {
+const fetchUploadsByProfile = async (): Promise<AudioData[]> => {
   const client = await getClient();
   const {data} = await client('/profile/uploads');
   return data.audios;
 };
 
-export const usefetchUploadsByProfile = () => {
+export const useFetchUploadsByProfile = () => {
   const dispatch = useDispatch();
   return useQuery(['uploads'], {
     queryFn: () => fetchUploadsByProfile(),

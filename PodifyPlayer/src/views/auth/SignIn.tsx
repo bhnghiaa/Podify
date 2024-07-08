@@ -68,6 +68,7 @@ const SignIn: FC<Props> = props => {
     } catch (error) {
       const errorMessage = catchAsyncError(error);
       dispatch(upldateNotification({message: errorMessage, type: 'error'}));
+      console.log('error', error);
     }
 
     actions.setSubmitting(false);
