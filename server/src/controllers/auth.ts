@@ -189,7 +189,7 @@ export const sendProfile: RequestHandler = async (req, res) => {
 };
 
 export const logOut: RequestHandler = async (req, res) => {
-  const { fromAll } = req.body;
+  const { fromAll } = req.query;
 
   const token = req.token;
   const user = await User.findById(req.user.id);
