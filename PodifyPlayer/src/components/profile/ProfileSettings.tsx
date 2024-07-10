@@ -38,6 +38,7 @@ const ProfileSettings: FC<Props> = props => {
   const [busy, setBusy] = useState(false);
   const dispatch = useDispatch();
   const {profile} = useSelector(getAuthState);
+  console.log(profile);
 
   const isSame = deepEqual(userInfo, {
     name: profile?.name,
@@ -83,13 +84,13 @@ const ProfileSettings: FC<Props> = props => {
 
       const client = await getClient({'Content-Type': 'multipart/form-data;'});
       const {data} = await client.post('/auth/update-profile', formData);
-      dispatch(updateProfile(data.profile));
       dispatch(
         upldateNotification({
           message: 'Your profile is updated.',
           type: 'success',
         }),
       );
+      dispatch(updateProfile(data.profile));
     } catch (error) {
       const errorMessage = catchAsyncError(error);
       dispatch(upldateNotification({message: errorMessage, type: 'error'}));
@@ -135,11 +136,6 @@ const ProfileSettings: FC<Props> = props => {
           style={styles.nameInput}
           value={userInfo.name}
         />
-        {/* <View style={styles.emailConainer}>
-          <Text style={styles.email}>{profile?.email}</Text>
-
-          <MaterialIcon name="verified" size={15} color={colors.SECONDARY} />
-        </View> */}
       </View>
 
       <View style={styles.titleContainer}>

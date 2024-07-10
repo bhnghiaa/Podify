@@ -5,8 +5,9 @@ import PlaylistModal from '@components/PlaylistModal';
 import RecommendedAudios from '@components/RecommendedAudios';
 import {getFromAsyncStorage, Keys} from '@utils/asyncStorage';
 import colors from '@utils/colors';
-import {FC, useState} from 'react';
+import {FC, useEffect, useState} from 'react';
 import {StyleSheet, ScrollView, Text, Pressable} from 'react-native';
+import TrackPlayer, {Track} from 'react-native-track-player';
 import MaterialcomIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useDispatch} from 'react-redux';
 import {AudioData, Playlist} from 'src/@types/audio';
@@ -14,6 +15,7 @@ import catchAsyncError from 'src/api/catchError';
 import {getClient} from 'src/api/client';
 import {useFetchPlaylist} from 'src/hooks/query';
 import {upldateNotification} from 'src/store/notification';
+import useAudioController from 'src/hooks/useAudioController';
 
 interface Props {}
 
@@ -25,6 +27,7 @@ const Home: FC<Props> = props => {
 
   const dispatch = useDispatch();
   const {data = [], isLoading} = useFetchPlaylist();
+  const {onAudioPress} = useAudioController();
 
   const handleOnLongPress = (item: AudioData) => {
     setSelectedAudio(item);
@@ -95,20 +98,25 @@ const Home: FC<Props> = props => {
       dispatch(upldateNotification({message: errorMessage, type: 'error'}));
     }
   };
+  useEffect(() => {
+    const setupPlayer = async () => {
+      try {
+        await TrackPlayer.setupPlayer();
+      } catch (error) {}
+    };
+
+    setupPlayer();
+  }, []);
   return (
     <ScrollView style={styles.container}>
       <LatestUploads
-        onAudioPress={item => {
-          console.log(item);
-        }}
+        onAudioPress={onAudioPress}
         onAudioLongPress={item => {
           handleOnLongPress(item);
         }}
       />
       <RecommendedAudios
-        onAudioPress={item => {
-          console.log(item);
-        }}
+        onAudioPress={onAudioPress}
         onAudioLongPress={item => {
           handleOnLongPress(item);
         }}

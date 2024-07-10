@@ -102,14 +102,14 @@ const Upload: FC<Props> = props => {
           });
 
           if (uploaded >= 100) {
+            setAudioInfo({...defaultForm});
+            setBusy(false);
             dispatch(
               upldateNotification({
                 message: 'Audio uploaded successfully!',
                 type: 'success',
               }),
             );
-            setAudioInfo({...defaultForm});
-            setBusy(false);
           }
 
           setUploadProgress(Math.floor(uploaded));

@@ -15,6 +15,7 @@ import { JWT_SECRET, PASSWORD_RESET_LINK } from "#/utils/variables";
 import jwt from "jsonwebtoken";
 import { RequestWithFiles } from "#/middleware/fileParser";
 import cloudinary from "#/cloud";
+import formidable from "formidable";
 
 export const create: RequestHandler = async (req: CreateUser, res) => {
   const { email, password, name } = req.body;
@@ -138,10 +139,11 @@ export const signIn: RequestHandler = async (req, res) => {
   const user = await User.findOne({
     email,
   });
-  if (!user) return res.status(403).json({ error: "Invalid credentials!" });
+  if (!user) return res.status(403).json({ error: "Email/Password mismatch!" });
 
   const matched = await user.comparePassword(password);
-  if (!matched) return res.status(403).json({ error: "Invalid credentials!" });
+  if (!matched)
+    return res.status(403).json({ error: "Email/Password mismatch!" });
 
   const token = jwt.sign({ userId: user._id }, JWT_SECRET);
   user.tokens.push(token);
@@ -156,7 +158,7 @@ export const updateProfile: RequestHandler = async (
   res
 ) => {
   const { name } = req.body;
-  const avatar = req.files?.avatar;
+  const avatar = req.files?.avatar as formidable.File;
 
   const user = await User.findById(req.user.id);
   if (!user) throw new Error("User not found!");
@@ -181,7 +183,7 @@ export const updateProfile: RequestHandler = async (
     user.avatar = { url: secure_url, publicId: public_id };
   }
   await user.save();
-  res.json({ avatar: user.avatar });
+  res.json({ profile: formatProfile(user) });
 };
 
 export const sendProfile: RequestHandler = async (req, res) => {
