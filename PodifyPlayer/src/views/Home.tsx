@@ -1,172 +1,171 @@
-import PlaylistForm, {PlaylistInfo} from '@components/form/PlaylistForm';
+import AppView from '@components/AppView';
 import LatestUploads from '@components/LatestUploads';
 import OptionsModal from '@components/OptionsModal';
-import PlaylistModal from '@components/PlaylistModal';
+import PlaylistForm, {PlaylistInfo} from '@components/form/PlaylistForm';
+import PlayListModal from '@components/PlaylistModal';
 import RecommendedAudios from '@components/RecommendedAudios';
 import {getFromAsyncStorage, Keys} from '@utils/asyncStorage';
 import colors from '@utils/colors';
 import {FC, useEffect, useState} from 'react';
-import {StyleSheet, ScrollView, Text, Pressable} from 'react-native';
+import {View, StyleSheet, Pressable, Text, ScrollView} from 'react-native';
 import TrackPlayer, {Track} from 'react-native-track-player';
-import MaterialcomIcon from 'react-native-vector-icons/MaterialCommunityIcons';
+import MaterialComIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useDispatch} from 'react-redux';
 import {AudioData, Playlist} from 'src/@types/audio';
 import catchAsyncError from 'src/api/catchError';
 import {getClient} from 'src/api/client';
 import {useFetchPlaylist} from 'src/hooks/query';
-import {upldateNotification} from 'src/store/notification';
 import useAudioController from 'src/hooks/useAudioController';
+import {upldateNotification} from 'src/store/notification';
 
 interface Props {}
 
 const Home: FC<Props> = props => {
-  const [showOptionsModal, setShowOptionsModal] = useState(false);
+  const [showOptions, setShowOptions] = useState(false);
   const [selectedAudio, setSelectedAudio] = useState<AudioData>();
   const [showPlaylistModal, setShowPlaylistModal] = useState(false);
   const [showPlaylistForm, setShowPlaylistForm] = useState(false);
-
-  const dispatch = useDispatch();
-  const {data = [], isLoading} = useFetchPlaylist();
   const {onAudioPress} = useAudioController();
 
-  const handleOnLongPress = (item: AudioData) => {
-    setSelectedAudio(item);
-    setShowOptionsModal(true);
-  };
-  const handleAddToPlaylist = () => {
-    setShowOptionsModal(false);
-    setShowPlaylistModal(true);
-  };
-  const handleOnFavoritePress = async () => {
+  const {data} = useFetchPlaylist();
+
+  const dispatch = useDispatch();
+
+  const handleOnFavPress = async () => {
     if (!selectedAudio) return;
+
     try {
       const client = await getClient();
+
       const {data} = await client.post('/favorite?audioId=' + selectedAudio.id);
     } catch (error) {
       const errorMessage = catchAsyncError(error);
       dispatch(upldateNotification({message: errorMessage, type: 'error'}));
     }
-    dispatch(
-      upldateNotification({
-        message: "Added to favorite's list",
-        type: 'success',
-      }),
-    );
-    console.log('Add to favorite', selectedAudio);
+
     setSelectedAudio(undefined);
-    setShowOptionsModal(false);
+    setShowOptions(false);
   };
 
-  const handlePlaylistSubmit = async (playlistInfo: PlaylistInfo) => {
+  const handleOnLongPress = (audio: AudioData) => {
+    setSelectedAudio(audio);
+    setShowOptions(true);
+  };
+
+  const handleOnAddToPlaylist = () => {
+    setShowOptions(false);
+    setShowPlaylistModal(true);
+  };
+
+  const handlePlaylistSubmit = async (value: PlaylistInfo) => {
+    if (!value.title.trim()) return;
+
     try {
       const client = await getClient();
-      if (!playlistInfo.title)
-        return dispatch(
-          upldateNotification({message: 'Title is required', type: 'error'}),
-        );
-
       const {data} = await client.post('/playlist/create', {
         resId: selectedAudio?.id,
-        title: playlistInfo.title,
-        visibility: playlistInfo.private ? 'private' : 'public',
+        title: value.title,
+        visibility: value.private ? 'private' : 'public',
       });
-
-      dispatch(
-        upldateNotification({message: 'Playlist created', type: 'success'}),
-      );
+      console.log(data);
     } catch (error) {
       const errorMessage = catchAsyncError(error);
-      dispatch(upldateNotification({message: errorMessage, type: 'error'}));
+      console.log(errorMessage);
     }
   };
-  const handleUpdatePlaylist = async (item: Playlist) => {
+
+  const updatePlaylist = async (item: Playlist) => {
     try {
       const client = await getClient();
-      const {data} = await client.patch('/playlist/update-playlist', {
+      const {data} = await client.patch('/playlist', {
         id: item.id,
         item: selectedAudio?.id,
         title: item.title,
         visibility: item.visibility,
       });
+
       setSelectedAudio(undefined);
       setShowPlaylistModal(false);
       dispatch(
-        upldateNotification({message: 'Added to playlist', type: 'success'}),
+        upldateNotification({message: 'New audio added.', type: 'success'}),
       );
     } catch (error) {
       const errorMessage = catchAsyncError(error);
-      dispatch(upldateNotification({message: errorMessage, type: 'error'}));
+      console.log(errorMessage);
     }
   };
+
   useEffect(() => {
     const setupPlayer = async () => {
-      try {
-        await TrackPlayer.setupPlayer();
-      } catch (error) {}
+      await TrackPlayer.setupPlayer();
     };
 
     setupPlayer();
   }, []);
-  return (
-    <ScrollView style={styles.container}>
-      <LatestUploads
-        onAudioPress={onAudioPress}
-        onAudioLongPress={item => {
-          handleOnLongPress(item);
-        }}
-      />
-      <RecommendedAudios
-        onAudioPress={onAudioPress}
-        onAudioLongPress={item => {
-          handleOnLongPress(item);
-        }}
-      />
-      <OptionsModal
-        visible={showOptionsModal}
-        onRequestClose={() => setShowOptionsModal(false)}
-        options={[
-          {
-            title: 'Add to playlist',
-            icon: 'playlist-music',
-            onPress: handleAddToPlaylist,
-          },
-          {
-            title: 'Add to favorite',
-            icon: 'cards-heart',
-            onPress: handleOnFavoritePress,
-          },
-        ]}
-        renderItem={item => (
-          <Pressable style={styles.optionContainer} onPress={item.onPress}>
-            <MaterialcomIcon
-              name={item.icon}
-              size={24}
-              color={colors.PRIMARY}
-            />
-            <Text style={styles.optionLabel}>{item.title}</Text>
-          </Pressable>
-        )}
-      />
 
-      <PlaylistModal
-        visible={showPlaylistModal}
-        onRequestClose={() => setShowPlaylistModal(false)}
-        onCreateNewPress={() => {
-          setShowPlaylistForm(true);
-          setShowPlaylistModal(false);
-        }}
-        onPlaylistPress={handleUpdatePlaylist}
-        list={data || []}
-      />
-      <PlaylistForm
-        visible={showPlaylistForm}
-        onRequestClose={() => {
-          setShowPlaylistForm(false);
-          setShowPlaylistModal(false);
-        }}
-        onSubmit={handlePlaylistSubmit}
-      />
-    </ScrollView>
+  return (
+    <AppView>
+      <ScrollView contentContainerStyle={styles.container}>
+        <LatestUploads
+          onAudioPress={onAudioPress}
+          onAudioLongPress={handleOnLongPress}
+        />
+        <RecommendedAudios
+          onAudioPress={onAudioPress}
+          onAudioLongPress={handleOnLongPress}
+        />
+        <OptionsModal
+          visible={showOptions}
+          onRequestClose={() => {
+            setShowOptions(false);
+          }}
+          options={[
+            {
+              title: 'Add to playlist',
+              icon: 'playlist-music',
+              onPress: handleOnAddToPlaylist,
+            },
+            {
+              title: 'Add to favorite',
+              icon: 'cards-heart',
+              onPress: handleOnFavPress,
+            },
+          ]}
+          renderItem={item => {
+            return (
+              <Pressable onPress={item.onPress} style={styles.optionContainer}>
+                <MaterialComIcon
+                  size={24}
+                  color={colors.PRIMARY}
+                  name={item.icon}
+                />
+                <Text style={styles.optionLabel}>{item.title}</Text>
+              </Pressable>
+            );
+          }}
+        />
+        <PlayListModal
+          visible={showPlaylistModal}
+          onRequestClose={() => {
+            setShowPlaylistModal(false);
+          }}
+          list={data || []}
+          onCreateNewPress={() => {
+            setShowPlaylistModal(false);
+            setShowPlaylistForm(true);
+          }}
+          onPlaylistPress={updatePlaylist}
+        />
+
+        <PlaylistForm
+          visible={showPlaylistForm}
+          onRequestClose={() => {
+            setShowPlaylistForm(false);
+          }}
+          onSubmit={handlePlaylistSubmit}
+        />
+      </ScrollView>
+    </AppView>
   );
 };
 
@@ -179,11 +178,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 10,
   },
-  optionLabel: {
-    fontSize: 16,
-    color: colors.PRIMARY,
-    marginLeft: 5,
-  },
+  optionLabel: {color: colors.PRIMARY, fontSize: 16, marginLeft: 5},
 });
 
 export default Home;

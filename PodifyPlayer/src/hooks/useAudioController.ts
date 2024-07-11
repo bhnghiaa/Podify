@@ -1,3 +1,4 @@
+import deepEqual from 'deep-equal';
 import TrackPlayer, {
   State,
   Track,
@@ -5,7 +6,11 @@ import TrackPlayer, {
 } from 'react-native-track-player';
 import {useDispatch, useSelector} from 'react-redux';
 import {AudioData} from 'src/@types/audio';
-import {getPlayerState, updateOnGoingAudio} from 'src/store/player';
+import {
+  getPlayerState,
+  updateOnGoingAudio,
+  updateOnGoingList,
+} from 'src/store/player';
 
 const updateQueue = async (data: AudioData[]) => {
   const lists: Track[] = data.map(item => {
@@ -25,8 +30,13 @@ const updateQueue = async (data: AudioData[]) => {
 const useAudioController = () => {
   const {state: playbackState} = usePlaybackState() as {state?: State};
   const isPlayerReady = playbackState !== State.None;
+  const isPlaying = playbackState === State.Playing;
+  const isPaused = playbackState === State.Paused;
+  const isBusy =
+    playbackState === State.Buffering || playbackState === State.Connecting;
+
   const dispatch = useDispatch();
-  const {onGoingAudio} = useSelector(getPlayerState);
+  const {onGoingAudio, onGoingList} = useSelector(getPlayerState);
 
   const onAudioPress = async (item: AudioData, data: AudioData[]) => {
     if (!isPlayerReady) {
@@ -35,18 +45,40 @@ const useAudioController = () => {
       await TrackPlayer.skip(index);
       await TrackPlayer.play();
       dispatch(updateOnGoingAudio(item));
+      return dispatch(updateOnGoingList(data));
     }
     if (playbackState === State.Playing && onGoingAudio?.id === item.id) {
-      await TrackPlayer.pause();
+      return await TrackPlayer.pause();
     }
-    console.log(playbackState);
     if (playbackState === State.Paused && onGoingAudio?.id === item.id) {
-      await TrackPlayer.play();
+      return await TrackPlayer.play();
     }
-    console.log(onGoingAudio?.id === item.id);
+    if (onGoingAudio?.id !== item.id) {
+      const fromSameList = deepEqual(data, onGoingList);
+
+      await TrackPlayer.pause();
+      const index = data.findIndex(audio => audio.id === item.id);
+
+      if (fromSameList) {
+        await TrackPlayer.reset();
+        await updateQueue(data);
+        dispatch(updateOnGoingAudio(item));
+      }
+      await TrackPlayer.skip(index);
+      await TrackPlayer.play();
+      dispatch(updateOnGoingAudio(item));
+    }
   };
 
-  return {onAudioPress};
+  const togglePlayPause = async () => {
+    if (isPlaying) {
+      return await TrackPlayer.pause();
+    }
+    if (isPaused) {
+      return await TrackPlayer.play();
+    }
+  };
+  return {onAudioPress, isPlayerReady, isPlaying, togglePlayPause, isBusy};
 };
 
 export default useAudioController;

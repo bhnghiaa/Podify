@@ -45,7 +45,7 @@ const LatestUploads: FC<Props> = ({onAudioLongPress, onAudioPress}) => {
               poster={item.poster}
               onPress={() => onAudioPress(item, data)}
               onLongPress={() => onAudioLongPress(item, data)}
-              visible={item.id === onGoingAudio?.id}
+              playing={item.id === onGoingAudio?.id}
             />
           );
         })}
