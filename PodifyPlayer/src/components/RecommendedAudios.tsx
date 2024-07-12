@@ -48,7 +48,7 @@ const RecommendedAudios: FC<Props> = ({onAudioLongPress, onAudioPress}) => {
               poster={item.poster}
               onPress={() => onAudioPress(item, data)}
               onLongPress={() => onAudioLongPress(item, data)}
-              containerStyle={{width: '100%'}}
+              containerStyle={{width: 100}}
               playing={onGoingAudio?.id === item.id}
             />
           );
@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginTop: 5,
   },
-  poster: {width: '100%', aspectRatio: 1, borderRadius: 7},
+  poster: {height: 100, aspectRatio: 1, borderRadius: 7},
   dummyTitleView: {
     height: 20,
     width: 150,

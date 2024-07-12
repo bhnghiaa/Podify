@@ -78,7 +78,58 @@ const useAudioController = () => {
       return await TrackPlayer.play();
     }
   };
-  return {onAudioPress, isPlayerReady, isPlaying, togglePlayPause, isBusy};
+  const seekTo = async (time: number) => {
+    await TrackPlayer.seekTo(time);
+  };
+  const skipTo = async (time: number) => {
+    const position = await TrackPlayer.getPosition();
+    await TrackPlayer.seekTo(position + time);
+  };
+
+  const onNextPress = async () => {
+    const currentList = await TrackPlayer.getQueue();
+    const currentIndex = await TrackPlayer.getCurrentTrack();
+    if (currentIndex === null) return;
+
+    const nextIndex = currentIndex + 1;
+
+    const nextAudio = currentList[nextIndex];
+    if (nextAudio) {
+      await TrackPlayer.skipToNext();
+      dispatch(updateOnGoingAudio(onGoingList[nextIndex]));
+    }
+  };
+
+  const onPreviousPress = async () => {
+    const currentList = await TrackPlayer.getQueue();
+    const currentIndex = await TrackPlayer.getCurrentTrack();
+    if (currentIndex === null) return;
+
+    const preIndex = currentIndex - 1;
+
+    const nextAudio = currentList[preIndex];
+    if (nextAudio) {
+      await TrackPlayer.skipToPrevious();
+      dispatch(updateOnGoingAudio(onGoingList[preIndex]));
+    }
+  };
+
+  const setPlaybackRate = async (rate: number) => {
+    await TrackPlayer.setRate(rate);
+  };
+
+  return {
+    onAudioPress,
+    isPlayerReady,
+    isPlaying,
+    togglePlayPause,
+    isBusy,
+    seekTo,
+    skipTo,
+    onNextPress,
+    setPlaybackRate,
+    onPreviousPress,
+  };
 };
 
 export default useAudioController;
