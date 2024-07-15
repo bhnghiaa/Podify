@@ -15,6 +15,7 @@ export const toggleFavorite: RequestHandler = async (req, res) => {
   const audio = await Audio.findById(audioId);
   if (!audio) return res.status(404).json({ error: "Resources not found!" });
 
+  // audio is already in fav
   const alreadyExists = await Favorite.findOne({
     owner: req.user.id,
     items: audioId,
@@ -32,6 +33,7 @@ export const toggleFavorite: RequestHandler = async (req, res) => {
   } else {
     const favorite = await Favorite.findOne({ owner: req.user.id });
     if (favorite) {
+      // trying to add new audio to the old list
       await Favorite.updateOne(
         { owner: req.user.id },
         {
@@ -39,6 +41,7 @@ export const toggleFavorite: RequestHandler = async (req, res) => {
         }
       );
     } else {
+      // trying to create fresh fav list
       await Favorite.create({ owner: req.user.id, items: [audioId] });
     }
 

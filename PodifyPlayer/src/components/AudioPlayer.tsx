@@ -11,12 +11,13 @@ import Slider from '@react-native-community/slider';
 import useAudioController from 'src/hooks/useAudioController';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import MaterialComIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import PlayPauseBtn from '@ui/PlayPauseBtn';
 import PlayerControler from '@ui/PlayerControler';
 import Loader from '@ui/Loader';
 import PlaybackRateSelector from '@ui/PlaybackRateSelector';
-import AudioInfoContainer from '@ui/AudioInfoContainer';
-import MaterialComIcon from 'react-native-vector-icons/MaterialCommunityIcons';
+import AudioInfoContainer from './AudioInfoContainer';
+
 interface Props {
   visible: boolean;
   onRequestClose(): void;
@@ -31,11 +32,11 @@ const fromattedDuration = (duration = 0) => {
 
 const AudioPlayer: FC<Props> = ({
   visible,
-  onRequestClose,
   onListOptionPress,
+  onRequestClose,
 }) => {
-  const {onGoingAudio, playbackRate} = useSelector(getPlayerState);
   const [showAudioInfo, setShowAudioInfo] = useState(false);
+  const {onGoingAudio, playbackRate} = useSelector(getPlayerState);
   const {
     isPlaying,
     isBusy,
@@ -47,10 +48,10 @@ const AudioPlayer: FC<Props> = ({
     setPlaybackRate,
   } = useAudioController();
   const poster = onGoingAudio?.poster;
-  const dispatch = useDispatch();
   const source = poster ? {uri: poster} : require('../assets/music.png');
 
   const {duration, position} = useProgress();
+  const dispatch = useDispatch();
 
   const handleOnNextPress = async () => {
     await onNextPress();
@@ -69,7 +70,7 @@ const AudioPlayer: FC<Props> = ({
     if (skipType === 'reverse') await skipTo(-10);
   };
 
-  const onPlaybackRatePress = async (rate: number) => {
+  const onPlaybacRatekPress = async (rate: number) => {
     await setPlaybackRate(rate);
     dispatch(updatePlaybackRate(rate));
   };
@@ -164,7 +165,7 @@ const AudioPlayer: FC<Props> = ({
           </View>
 
           <PlaybackRateSelector
-            onPress={onPlaybackRatePress}
+            onPress={onPlaybacRatekPress}
             activeRate={playbackRate.toString()}
             containerStyle={{marginTop: 20}}
           />

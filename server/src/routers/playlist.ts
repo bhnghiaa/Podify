@@ -14,6 +14,7 @@ import {
 import { Router } from "express";
 
 const router = Router();
+
 router.post(
   "/create",
   mustAuth,
@@ -22,7 +23,7 @@ router.post(
   createPlaylist
 );
 router.patch(
-  "/update-playlist",
+  "/",
   mustAuth,
   validate(OldPlaylistValidationSchema),
   updatePlaylist
@@ -30,5 +31,5 @@ router.patch(
 router.delete("/", mustAuth, removePlaylist);
 router.get("/by-profile", mustAuth, getPlaylistByProfile);
 router.get("/:playlistId", mustAuth, getAudios);
-//
+
 export default router;

@@ -49,6 +49,9 @@ export const updateHistory: RequestHandler = async (req, res) => {
     },
   ]);
 
+  // const sameDayHistory = histories.find((item) => {
+  //   if (item.audio.toString() === audio) return item;
+  // });
   const sameDayHistory = histories.find(
     ({ audioId }) => audioId.toString() === audio
   );
@@ -80,6 +83,7 @@ export const removeHistory: RequestHandler = async (req, res) => {
   const removeAll = req.query.all === "yes";
 
   if (removeAll) {
+    // remove all the history
     await History.findOneAndDelete({ owner: req.user.id });
     return res.json({ success: true });
   }

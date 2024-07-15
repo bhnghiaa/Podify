@@ -1,7 +1,7 @@
 import AppView from '@components/AppView';
 import LatestUploads from '@components/LatestUploads';
 import OptionsModal from '@components/OptionsModal';
-import PlaylistForm, {PlaylistInfo} from '@components/form/PlaylistForm';
+import PlaylistForm, {PlaylistInfo} from '@components/PlaylistForm';
 import PlayListModal from '@components/PlaylistModal';
 import RecommendedAudios from '@components/RecommendedAudios';
 import colors from '@utils/colors';
@@ -93,7 +93,6 @@ const Home: FC<Props> = props => {
       console.log(errorMessage);
     }
   };
-
 
   return (
     <AppView>

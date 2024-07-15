@@ -45,6 +45,8 @@ const LostPassword: FC<Props> = props => {
       const {data} = await client.post('/auth/forget-password', {
         ...values,
       });
+
+      console.log(data);
     } catch (error) {
       const errorMessage = catchAsyncError(error);
       dispatch(upldateNotification({message: errorMessage, type: 'error'}));

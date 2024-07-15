@@ -1,4 +1,8 @@
-import { createAudio, getLatestUploads, updateAudio } from "#/controllers/audio";
+import {
+  createAudio,
+  getLatestUploads,
+  updateAudio,
+} from "#/controllers/audio";
 import { isVerified, mustAuth } from "#/middleware/auth";
 import fileParser from "#/middleware/fileParser";
 import { validate } from "#/middleware/validator";
@@ -8,22 +12,21 @@ import { Router } from "express";
 const router = Router();
 
 router.post(
-    "/create",
-    mustAuth,
-    isVerified,
-    fileParser,
-    validate(AudioValidationSchema),
-    createAudio
+  "/create",
+  mustAuth,
+  isVerified,
+  fileParser,
+  validate(AudioValidationSchema),
+  createAudio
 );
-
-router.post(
-    "/update-audio/:id",
-    mustAuth,
-    isVerified,
-    fileParser,
-    validate(AudioValidationSchema),
-    updateAudio
+router.patch(
+  "/:audioId",
+  mustAuth,
+  isVerified,
+  fileParser,
+  validate(AudioValidationSchema),
+  updateAudio
 );
-router.get("/latest", getLatestUploads)
+router.get("/latest", getLatestUploads);
 
 export default router;

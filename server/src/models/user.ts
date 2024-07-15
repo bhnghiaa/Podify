@@ -1,6 +1,7 @@
 import { compare, hash } from "bcrypt";
 import { Model, model, ObjectId, Schema } from "mongoose";
 
+// interface (typescript)
 export interface UserDocument {
   _id: ObjectId;
   name: string;
@@ -67,6 +68,7 @@ const userSchema = new Schema<UserDocument, {}, Methods>(
 );
 
 userSchema.pre("save", async function (next) {
+  // hash the token
   if (this.isModified("password")) {
     this.password = await hash(this.password, 10);
   }

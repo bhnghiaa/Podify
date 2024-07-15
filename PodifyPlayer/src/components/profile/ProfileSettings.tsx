@@ -8,9 +8,10 @@ import {
   Text,
   Pressable,
   TextInput,
-  PermissionsAndroid,
+  Alert,
 } from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
+import MaterialComIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import AppButton from '@ui/AppButton';
 import {getClient} from 'src/api/client';
@@ -26,6 +27,9 @@ import {useDispatch, useSelector} from 'react-redux';
 import {Keys, removeFromAsyncStorage} from '@utils/asyncStorage';
 import deepEqual from 'deep-equal';
 import ImagePicker from 'react-native-image-crop-picker';
+import {getPermissionToReadImages} from '@utils/helper';
+import ReVerificationLink from '@components/ReVerificationLink';
+import {useQueryClient} from 'react-query';
 
 interface Props {}
 interface ProfileInfo {
@@ -38,7 +42,7 @@ const ProfileSettings: FC<Props> = props => {
   const [busy, setBusy] = useState(false);
   const dispatch = useDispatch();
   const {profile} = useSelector(getAuthState);
-  console.log(profile);
+  const queryClient = useQueryClient();
 
   const isSame = deepEqual(userInfo, {
     name: profile?.name,
@@ -84,13 +88,13 @@ const ProfileSettings: FC<Props> = props => {
 
       const client = await getClient({'Content-Type': 'multipart/form-data;'});
       const {data} = await client.post('/auth/update-profile', formData);
+      dispatch(updateProfile(data.profile));
       dispatch(
         upldateNotification({
           message: 'Your profile is updated.',
           type: 'success',
         }),
       );
-      dispatch(updateProfile(data.profile));
     } catch (error) {
       const errorMessage = catchAsyncError(error);
       dispatch(upldateNotification({message: errorMessage, type: 'error'}));
@@ -100,6 +104,7 @@ const ProfileSettings: FC<Props> = props => {
 
   const handleImageSelect = async () => {
     try {
+      await getPermissionToReadImages();
       const {path} = await ImagePicker.openPicker({
         cropping: true,
         width: 300,
@@ -110,6 +115,46 @@ const ProfileSettings: FC<Props> = props => {
     } catch (error) {
       console.log(error);
     }
+  };
+
+  const clearHistory = async () => {
+    try {
+      const client = await getClient();
+      dispatch(
+        upldateNotification({
+          message: 'Your histories will be removed!',
+          type: 'success',
+        }),
+      );
+      await client.delete('/history?all=yes');
+      queryClient.invalidateQueries({queryKey: ['histories']});
+    } catch (error) {
+      const errorMessage = catchAsyncError(error);
+      dispatch(upldateNotification({message: errorMessage, type: 'error'}));
+    }
+  };
+
+  const handleOnHistoryClear = () => {
+    Alert.alert(
+      'Are you sure?',
+      'This action will clear out all the hsitory!',
+      [
+        {
+          text: 'Clear',
+          style: 'destructive',
+          onPress() {
+            clearHistory();
+          },
+        },
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+      ],
+      {
+        cancelable: true,
+      },
+    );
   };
 
   useEffect(() => {
@@ -136,6 +181,27 @@ const ProfileSettings: FC<Props> = props => {
           style={styles.nameInput}
           value={userInfo.name}
         />
+        <View style={styles.emailConainer}>
+          <Text style={styles.email}>{profile?.email}</Text>
+          {profile?.verified ? (
+            <MaterialIcon name="verified" size={15} color={colors.SECONDARY} />
+          ) : (
+            <ReVerificationLink linkTitle="verify" activeAtFirst />
+          )}
+        </View>
+      </View>
+
+      <View style={styles.titleContainer}>
+        <Text style={styles.title}>History</Text>
+      </View>
+
+      <View style={styles.settingOptionsContainer}>
+        <Pressable
+          onPress={handleOnHistoryClear}
+          style={styles.buttonContainer}>
+          <MaterialComIcon name="broom" size={20} color={colors.CONTRAST} />
+          <Text style={styles.buttonTitle}>Clear All</Text>
+        </Pressable>
       </View>
 
       <View style={styles.titleContainer}>
@@ -143,13 +209,17 @@ const ProfileSettings: FC<Props> = props => {
       </View>
 
       <View style={styles.settingOptionsContainer}>
-        <Pressable onPress={() => handleLogout(true)} style={styles.logoutBtn}>
+        <Pressable
+          onPress={() => handleLogout(true)}
+          style={styles.buttonContainer}>
           <AntDesign name="logout" size={20} color={colors.CONTRAST} />
-          <Text style={styles.logoutBtnTitle}>Logout From All</Text>
+          <Text style={styles.buttonTitle}>Logout From All</Text>
         </Pressable>
-        <Pressable onPress={() => handleLogout()} style={styles.logoutBtn}>
+        <Pressable
+          onPress={() => handleLogout()}
+          style={styles.buttonContainer}>
           <AntDesign name="logout" size={20} color={colors.CONTRAST} />
-          <Text style={styles.logoutBtnTitle}>Logout</Text>
+          <Text style={styles.buttonTitle}>Logout</Text>
         </Pressable>
       </View>
 
@@ -216,12 +286,12 @@ const styles = StyleSheet.create({
     color: colors.CONTRAST,
     marginRight: 10,
   },
-  logoutBtn: {
+  buttonContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 15,
   },
-  logoutBtnTitle: {
+  buttonTitle: {
     color: colors.CONTRAST,
     fontSize: 18,
     marginLeft: 5,

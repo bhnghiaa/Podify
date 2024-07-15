@@ -3,9 +3,7 @@ import LostPassword from '@views/auth/LostPassword';
 import SignIn from '@views/auth/SignIn';
 import SignUp from '@views/auth/SignUp';
 import Verification from '@views/auth/Verification';
-import {useSelector} from 'react-redux';
 import {AuthStackParamList} from 'src/@types/navigation';
-import {getAuthState} from 'src/store/auth';
 
 const Stack = createNativeStackNavigator<AuthStackParamList>();
 

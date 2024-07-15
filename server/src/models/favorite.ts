@@ -1,20 +1,21 @@
-import { Model, ObjectId, Schema, model, models } from "mongoose";
+import { Model, model, models, ObjectId, Schema } from "mongoose";
 
 interface FavoriteDocument {
-    owner: ObjectId;
-    items: ObjectId[];
+  owner: ObjectId;
+  items: ObjectId[];
 }
 
-const favoriteSchema = new Schema<FavoriteDocument>({
+const favoriteSchema = new Schema<FavoriteDocument>(
+  {
     owner: {
-        type: Schema.Types.ObjectId,
-        ref: "User"
+      type: Schema.Types.ObjectId,
+      ref: "User",
     },
-    items: [ {
-        type: Schema.Types.ObjectId,
-        ref: "Audio"
-    } ],
-}, { timestamps: true });
+    items: [{ type: Schema.Types.ObjectId, ref: "Audio" }],
+  },
+  { timestamps: true }
+);
 
 const Favorite = models.Favorite || model("Favorite", favoriteSchema);
+
 export default Favorite as Model<FavoriteDocument>;

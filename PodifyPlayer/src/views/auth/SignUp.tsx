@@ -26,11 +26,7 @@ import {useDispatch} from 'react-redux';
 import {upldateNotification} from 'src/store/notification';
 
 const signupSchema = yup.object({
-  name: yup
-    .string()
-    .trim('Name is missing!')
-    .min(3, 'Invalid name!')
-    .required('Name is required!'),
+  name: yup.string().trim('Name is missing!').required('Name is required!'),
   email: yup
     .string()
     .trim('Email is missing!')

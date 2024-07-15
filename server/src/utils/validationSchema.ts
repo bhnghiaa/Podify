@@ -22,23 +22,29 @@ export const CreateUserSchema = yup.object().shape({
 });
 
 export const TokenAndIDValidation = yup.object().shape({
+  token: yup.string().trim().required("Invalid token!"),
   userId: yup
     .string()
-    .test("isValidObjectId", "Invalid userId!", (value) =>
-      isValidObjectId(value)
-    )
+    .transform(function (value) {
+      if (this.isType(value) && isValidObjectId(value)) {
+        return value;
+      }
+      return "";
+    })
     .required("Invalid userId!"),
-  token: yup.string().trim().required("Invalid token!"),
 });
 
-export const UpdatePasswordValidation = yup.object().shape({
+export const UpdatePasswordSchema = yup.object().shape({
+  token: yup.string().trim().required("Invalid token!"),
   userId: yup
     .string()
-    .test("isValidObjectId", "Invalid userId!", (value) =>
-      isValidObjectId(value)
-    )
+    .transform(function (value) {
+      if (this.isType(value) && isValidObjectId(value)) {
+        return value;
+      }
+      return "";
+    })
     .required("Invalid userId!"),
-  token: yup.string().trim().required("Invalid token!"),
   password: yup
     .string()
     .trim()
@@ -77,15 +83,18 @@ export const NewPlaylistValidationSchema = yup.object().shape({
 
 export const OldPlaylistValidationSchema = yup.object().shape({
   title: yup.string().required("Title is missing!"),
+  // this is going to validate the audio id
   item: yup.string().transform(function (value) {
     return this.isType(value) && isValidObjectId(value) ? value : "";
   }),
+  // this is going to validate the playlist id
   id: yup.string().transform(function (value) {
     return this.isType(value) && isValidObjectId(value) ? value : "";
   }),
   visibility: yup
     .string()
     .oneOf(["public", "private"], "Visibility must be public or private!"),
+  // .required("Visibility is missing!"),
 });
 
 export const UpdateHistorySchema = yup.object().shape({
@@ -95,10 +104,7 @@ export const UpdateHistorySchema = yup.object().shape({
       return this.isType(value) && isValidObjectId(value) ? value : "";
     })
     .required("Invalid audio id!"),
-  progress: yup
-    .number()
-    .required("History progress is missing!")
-    .min(0, "Invalid progress!"),
+  progress: yup.number().required("History progress is missing!"),
   date: yup
     .string()
     .transform(function (value) {

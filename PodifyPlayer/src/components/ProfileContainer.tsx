@@ -5,6 +5,7 @@ import {View, StyleSheet, Text, Pressable} from 'react-native';
 import {UserProfile} from 'src/store/auth';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
+import Octicons from 'react-native-vector-icons/Octicons';
 import {NavigationProp, useNavigation} from '@react-navigation/native';
 import {ProfileNavigatorStackParamList} from 'src/@types/navigation';
 
@@ -13,18 +14,23 @@ interface Props {
 }
 
 const ProfileContainer: FC<Props> = ({profile}) => {
-  if (!profile) return null;
-  const navigation =
+  const {navigate} =
     useNavigation<NavigationProp<ProfileNavigatorStackParamList>>();
+  if (!profile) return null;
 
   return (
     <View style={styles.container}>
       <AvatarField source={profile.avatar} />
+
       <View style={styles.profileInfoConatiner}>
         <Text style={styles.profileName}>{profile.name}</Text>
         <View style={styles.flexRow}>
           <Text style={styles.email}>{profile.email}</Text>
-          <MaterialIcon name="verified" size={15} color={colors.SECONDARY} />
+          {profile.verified ? (
+            <MaterialIcon name="verified" size={15} color={colors.SECONDARY} />
+          ) : (
+            <Octicons name="unverified" size={15} color={colors.SECONDARY} />
+          )}
         </View>
 
         <View style={styles.flexRow}>
@@ -38,8 +44,8 @@ const ProfileContainer: FC<Props> = ({profile}) => {
       </View>
 
       <Pressable
-        style={styles.settingsBtn}
-        onPress={() => navigation.navigate('ProfileSettings')}>
+        onPress={() => navigate('ProfileSettings')}
+        style={styles.settingsBtn}>
         <AntDesign name="setting" size={22} color={colors.CONTRAST} />
       </Pressable>
     </View>
@@ -51,7 +57,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingTop: 10,
   },
   profileInfoConatiner: {
     paddingLeft: 10,
@@ -74,8 +79,7 @@ const styles = StyleSheet.create({
     color: colors.PRIMARY,
     paddingHorizontal: 4,
     paddingVertical: 2,
-    marginVertical: 5,
-    marginRight: 8,
+    margin: 5,
   },
   settingsBtn: {
     width: 40,

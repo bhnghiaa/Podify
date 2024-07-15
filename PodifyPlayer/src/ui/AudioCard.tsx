@@ -47,7 +47,7 @@ const AudioCard: FC<Props> = ({
 
 const styles = StyleSheet.create({
   container: {width: 100, marginRight: 15},
-  poster: {height: 100, aspectRatio: 1, borderRadius: 7},
+  poster: {width: 100, height: 100, borderRadius: 7},
   title: {
     color: colors.CONTRAST,
     fontWeight: '500',

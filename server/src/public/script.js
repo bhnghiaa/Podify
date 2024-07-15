@@ -63,23 +63,28 @@ const displaySuccess = (successMessage) => {
 
 const handleSubmit = async (evt) => {
   evt.preventDefault();
+  // validate
   if (!password.value.trim()) {
+    // render error
     return displayError("Password is missing!");
   }
 
   if (!passRegex.test(password.value)) {
+    // render error
     return displayError(
       "Password is too simple, use alpha numeric with special characters!"
     );
   }
 
   if (password.value !== confirmPassword.value) {
+    // render error
     return displayError("Password do not match!");
   }
 
   button.disabled = true;
   button.innerText = "Please wait...";
 
+  // handle the submit
   const res = await fetch("/auth/update-password", {
     method: "POST",
     headers: {

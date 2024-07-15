@@ -1,34 +1,31 @@
 import BasicModalContainer from '@ui/BasicModalContainer';
 import {FC} from 'react';
-import {View, Text, StyleSheet} from 'react-native';
+import {View, StyleSheet} from 'react-native';
 
 interface Props<T> {
-  visible?: boolean;
-  onRequestClose?(): void;
-  renderItem(item: T): JSX.Element;
+  visible: boolean;
+  onRequestClose(): void;
   options: T[];
+  renderItem(item: T): JSX.Element;
 }
+
 const OptionsModal = <T extends any>({
   visible,
+  options,
   onRequestClose,
   renderItem,
-  options,
 }: Props<T>) => {
   return (
     <BasicModalContainer visible={visible} onRequestClose={onRequestClose}>
-      {options.map((option, index) => {
-        return <View key={index}>{renderItem(option)}</View>;
+      {options.map((item, index) => {
+        return <View key={index}>{renderItem(item)}</View>;
       })}
     </BasicModalContainer>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
+  container: {},
 });
 
 export default OptionsModal;

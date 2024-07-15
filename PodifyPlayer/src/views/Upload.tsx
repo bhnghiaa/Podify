@@ -91,6 +91,7 @@ const Upload: FC<Props> = props => {
         });
 
       const client = await getClient({'Content-Type': 'multipart/form-data;'});
+
       const {data} = await client.post('/audio/create', formData, {
         onUploadProgress(progressEvent) {
           const uploaded = mapRange({
@@ -104,17 +105,13 @@ const Upload: FC<Props> = props => {
           if (uploaded >= 100) {
             setAudioInfo({...defaultForm});
             setBusy(false);
-            dispatch(
-              upldateNotification({
-                message: 'Audio uploaded successfully!',
-                type: 'success',
-              }),
-            );
           }
 
           setUploadProgress(Math.floor(uploaded));
         },
       });
+
+      console.log(data);
     } catch (error) {
       const errorMessage = catchAsyncError(error);
       dispatch(upldateNotification({message: errorMessage, type: 'error'}));
